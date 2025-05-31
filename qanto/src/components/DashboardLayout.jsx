@@ -48,6 +48,24 @@ export function DashboardLayout({ children }) {
       .toUpperCase();
   };
 
+  const onLogout = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/users/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!res.ok) throw new Error(`Logout failed with status ${res.status}`);
+
+      const data = await res.json();
+      console.log(data.message); // "Logged out"
+
+      // Optionally redirect or update UI after logout
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -184,8 +202,13 @@ export function DashboardLayout({ children }) {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <button
+                      onClick={() => onLogout()}
+                      className="flex items-center w-full"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </button>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
