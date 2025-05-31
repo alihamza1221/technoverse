@@ -2,7 +2,7 @@ const userModel = require("../models/user.model");
 
 module.exports.registerUser = async (req, res, next) => {
   try {
-    const { username, email, password, imageUri } = req.body;
+    const { name, email, password, phone, role } = req.body;
 
     const isUserAlready = await userModel.findOne({ email });
 
@@ -14,14 +14,12 @@ module.exports.registerUser = async (req, res, next) => {
     const hashedPassword = await userModel.hashPassword(password);
 
     const user = await userModel.create({
-      username,
+      name,
       email,
       password: hashedPassword,
-      imageUri,
+      phone,
+      role,
     });
-
-    console.log("user", user);
-
     await user.save();
     const token = user.generateAuthToken();
     res.cookie("token", token);
@@ -58,6 +56,7 @@ module.exports.loginUser = async (req, res, next) => {
 };
 
 module.exports.getUserProfile = async (req, res, next) => {
+  console.log("req user", req.user);
   res.status(200).json(req.user);
 };
 

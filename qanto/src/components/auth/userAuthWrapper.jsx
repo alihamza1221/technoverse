@@ -23,7 +23,12 @@ const UserProtectWrapper = ({ children }) => {
       })
       .then((response) => {
         if (response.status === 200) {
-          setUser(response.data);
+          console.log("User data: succes:", response.data);
+          try {
+            setUser(response.data);
+          } catch (err) {
+            console.log("Error setting user data:", err);
+          }
           setIsLoading(false);
         }
       })

@@ -4,12 +4,17 @@ import { Card, CardContent } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 export function LoginForm({ className, ...props }) {
   const [isLogin, setIsLogin] = useState(true);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
+    phone: "",
+    role: "Citizen",
   });
 
   const handleInputChange = (e) => {
@@ -19,19 +24,22 @@ export function LoginForm({ className, ...props }) {
       [id]: value,
     }));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Here you can make your API call to the backend
-      console.log("Form data:", formData);
+      // Prepare form data based on login/signup mode
+      const submitData = isLogin
+        ? { email: formData.email, password: formData.password }
+        : formData;
 
-      // Axios API call for login
+      console.log("Form data:", submitData);
+
+      // Axios API call for login/signup
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/users/${
           isLogin ? "login" : "sign-up"
         }`,
-        formData,
+        submitData,
         {
           headers: {
             "Content-Type": "application/json",
@@ -39,14 +47,14 @@ export function LoginForm({ className, ...props }) {
         }
       );
       console.log("Login successful:", response);
-
       if (response.status === 200) {
         const result = response.data;
         //set token in localStorage
         localStorage.setItem("token", result.token);
         console.log("Login successful:", result);
 
-        // Handle successful login (e.g., redirect, store token, etc.)
+        // Redirect to home page on successful login/signup
+        navigate("/");
       }
     } catch (error) {
       if (error.response) {
@@ -64,17 +72,46 @@ export function LoginForm({ className, ...props }) {
   };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden  bg-white shadow-lg ">
-        <CardContent className="grid p-0 md:grid-cols-2 ">
+      {" "}
+      <Card
+        className={cn(
+          "overflow-hidden bg-white shadow-lg transition-all duration-300 w-full",
+          !isLogin && "max-w-7xl mx-auto"
+        )}
+      >
+        <CardContent
+          className={cn(
+            "grid p-0 transition-all duration-300 min-h-[600px]",
+            isLogin ? "md:grid-cols-2" : "md:grid-cols-[2fr_1fr]"
+          )}
+        >
           {" "}
           <form className="p-6 md:p-8" onSubmit={handleSubmit}>
+            {" "}
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">Welcome back</h1>
+                <h1 className="text-2xl font-bold">
+                  {isLogin ? "Welcome back" : "Create Account"}
+                </h1>
                 <p className="text-balance text-muted-foreground">
-                  Login to your Acme Inc account
+                  {isLogin
+                    ? "Login to your Acme Inc account"
+                    : "Sign up for a new account"}
                 </p>
               </div>
+              {!isLogin && (
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="John Doe"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              )}
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -86,15 +123,30 @@ export function LoginForm({ className, ...props }) {
                   required
                 />
               </div>
+              {!isLogin && (
+                <div className="grid gap-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="+1 (555) 123-4567"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              )}
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  <a
-                    href="#"
-                    className="ml-auto text-sm underline-offset-2 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
+                  {isLogin && (
+                    <a
+                      href="#"
+                      className="ml-auto text-sm underline-offset-2 hover:underline"
+                    >
+                      Forgot your password?
+                    </a>
+                  )}
                 </div>
                 <Input
                   id="password"
@@ -103,12 +155,31 @@ export function LoginForm({ className, ...props }) {
                   onChange={handleInputChange}
                   required
                 />
-              </div>
+              </div>{" "}
+              {!isLogin && (
+                <div className="grid gap-2">
+                  <Label htmlFor="role">Role</Label>
+                  <select
+                    id="role"
+                    value={formData.role}
+                    onChange={handleInputChange}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    required
+                  >
+                    <option value="Citizen">Citizen</option>
+                    <option value="Worker">Worker</option>
+                    <option value="DepartmentOfficial">
+                      Department Official
+                    </option>
+                    <option value="DepartmentHead">Department Head</option>
+                  </select>
+                </div>
+              )}
               <Button
                 type="submit"
-                className="w-full bg-gray-900   text-white hover:bg-gray-800 cursor-pointer"
+                className="w-full bg-gray-900 text-white hover:bg-gray-800 cursor-pointer"
               >
-                Login
+                {isLogin ? "Login" : "Sign Up"}
               </Button>
               <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:-z-10 after:flex after:items-center after:border-t after:border-border">
                 <span className="relative bg-white dark:bg-white px-2 text-muted-foreground">
@@ -143,13 +214,16 @@ export function LoginForm({ className, ...props }) {
                   </svg>
                   <span className="sr-only">Login with Meta</span>
                 </Button>
-              </div>
+              </div>{" "}
               <button
+                type="button"
                 onClick={() => setIsLogin(!isLogin)}
                 className="text-center text-sm inline-block"
               >
-                Don&apos;t have an account?{" "}
-                <span href="#" className="underline underline-offset-4">
+                {isLogin
+                  ? "Don't have an account? "
+                  : "Already have an account? "}
+                <span className="underline underline-offset-4">
                   {isLogin ? "Sign up" : "Login"}
                 </span>
               </button>

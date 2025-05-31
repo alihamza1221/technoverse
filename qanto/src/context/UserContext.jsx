@@ -1,12 +1,17 @@
 import React, { createContext, useState } from "react";
 
 export const UserDataContext = createContext();
+import { UserRole } from "../lib/common";
 
 const UserContext = ({ children }) => {
   const [user, setUser] = useState({
-    username: "",
+    name: "",
     email: "",
-    imageUri: "",
+    role: UserRole.CITIZEN,
+    phone: "",
+    profileImage: "",
+    socketId: "",
+    _id: "",
   });
 
   return (

@@ -2,8 +2,6 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const defaultImage = null;
-
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -13,50 +11,15 @@ const userSchema = new mongoose.Schema(
     socketId: {
       type: String,
     },
-    role: { 
-      type: String, 
-      enum: ['Citizen', 'Worker', 'DepartmentOfficial', 'DepartmentHead'],
-      default: 'Citizen' 
+    role: {
+      type: String,
+      enum: ["Citizen", "Worker", "DepartmentOfficial", "DepartmentHead"],
+      default: "Citizen",
     },
-    department: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Department'
-    },
-    profileImage: { type: String ,required: false, },
-    isActive: { type: Boolean, default: true },
-    notifications: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Notification'
-    }]
-
-    // username: {
-    //   type: String,
-    //   required: false,
-    // },
-    // email: {
-    //   type: String,
-    //   required: true,
-    //   unique: true,
-    // },
-    // password: {
-    //   type: String,
-    //   required: true,
-    //   select: false,
-    // },
-    // imageUri: {
-    //   type: String,
-    //   required: false,
-    // },
-    
+    profileImage: { type: String, required: false },
   },
   { timestamps: true }
 );
-
-// userSchema.pre('save', async function(next){
-//   if(!this.isModified('password')) return next();
-//   this.password = await bcrypt.hash(this.password, 12);
-//   next();
-// });
 
 userSchema.methods.generateAuthToken = function () {
   const token = jwt.sign({ _id: this._id }, process.env.JWT_SECRET, {
