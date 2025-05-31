@@ -6,24 +6,27 @@ module.exports.registerUser = async (req, res, next) => {
 
     const isUserAlready = await userModel.findOne({ email });
 
+    console.log("isUserAlready", isUserAlready);
     if (isUserAlready) {
       return res.status(400).json({ message: "User already exist" });
     }
 
     const hashedPassword = await userModel.hashPassword(password);
 
-    const user = await userService.createUser({
+    const user = await userModel.create({
       username,
       email,
       password: hashedPassword,
       imageUri,
     });
 
+    console.log("user", user);
+
     await user.save();
     const token = user.generateAuthToken();
     res.cookie("token", token);
 
-    res.status(201).json({ token, user });
+    res.status(200).json({ token, user });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -32,6 +35,7 @@ module.exports.loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
+    console.log("email", email);
     const user = await userModel.findOne({ email }).select("+password");
 
     if (!user) {
@@ -47,7 +51,7 @@ module.exports.loginUser = async (req, res, next) => {
     const token = user.generateAuthToken();
     res.cookie("token", token);
 
-    res.status(201).json({ token, user });
+    res.status(200).json({ token, user });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

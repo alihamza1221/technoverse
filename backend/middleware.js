@@ -1,6 +1,6 @@
-const userModel = require("../models/user.model");
+const userModel = require("./models/user.model");
 const jwt = require("jsonwebtoken");
-const adminModel = require("../models/admin.model");
+const adminModel = require("./models/admin.model");
 const multer = require("multer");
 
 module.exports.authUser = async (req, res, next) => {

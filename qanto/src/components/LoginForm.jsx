@@ -4,13 +4,70 @@ import { Card, CardContent } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useState } from "react";
+import axios from "axios";
 export function LoginForm({ className, ...props }) {
   const [isLogin, setIsLogin] = useState(true);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Here you can make your API call to the backend
+      console.log("Form data:", formData);
+
+      // Axios API call for login
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/users/${
+          isLogin ? "login" : "sign-up"
+        }`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("Login successful:", response);
+
+      if (response.status === 200) {
+        const result = response.data;
+        //set token in localStorage
+        localStorage.setItem("token", result.token);
+        console.log("Login successful:", result);
+
+        // Handle successful login (e.g., redirect, store token, etc.)
+      }
+    } catch (error) {
+      if (error.response) {
+        // Server responded with error status
+        console.error("Login failed:", error.response.data);
+        // Handle login error
+      } else if (error.request) {
+        // Network error
+        console.error("Network error:", error.request);
+      } else {
+        // Other error
+        console.error("Error during login:", error.message);
+      }
+    }
+  };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden  bg-white shadow-lg ">
         <CardContent className="grid p-0 md:grid-cols-2 ">
-          <form className="p-6 md:p-8">
+          {" "}
+          <form className="p-6 md:p-8" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <h1 className="text-2xl font-bold">Welcome back</h1>
@@ -24,6 +81,8 @@ export function LoginForm({ className, ...props }) {
                   id="email"
                   type="email"
                   placeholder="m@example.com"
+                  value={formData.email}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
@@ -37,7 +96,13 @@ export function LoginForm({ className, ...props }) {
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
               <Button
                 type="submit"
