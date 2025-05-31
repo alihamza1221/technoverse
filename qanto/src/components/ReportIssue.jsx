@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import {
   Card,
   CardContent,
@@ -29,20 +30,21 @@ import {
 } from "lucide-react";
 
 const issueCategories = [
-  "Road & Transportation",
-  "Sanitation & Waste",
-  "Street Lighting",
-  "Water & Drainage",
+  "Potholes",
+  "Sanitation",
+  "Electricity",
+  "Traffic",
+  "Water Supply",
   "Public Safety",
-  "Parks & Recreation",
-  "Noise Pollution",
+  "Road Maintenance",
+  "Garbage Disposal",
   "Other",
 ];
 
 const priorityLevels = [
-  { value: "low", label: "Low", color: "bg-green-100 text-green-800" },
-  { value: "medium", label: "Medium", color: "bg-yellow-100 text-yellow-800" },
-  { value: "high", label: "High", color: "bg-red-100 text-red-800" },
+  { value: "Low", label: "Low", color: "bg-green-100 text-green-800" },
+  { value: "Medium", label: "Medium", color: "bg-yellow-100 text-yellow-800" },
+  { value: "High", label: "High", color: "bg-red-100 text-red-800" },
 ];
 
 export default function ReportPage() {
@@ -98,29 +100,70 @@ export default function ReportPage() {
       alert("Geolocation is not supported by this browser.");
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const token = localStorage.getItem("token");
+
+      // Prepare form data for submission
+      const issueData = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        priority: formData.priority,
+        location: formData.location,
+        coordinates: formData.coordinates,
+      };
+
+      // Create FormData for file uploads
+      const submitData = new FormData();
+
+      // Append issue data as JSON
+      //submitData.append("issueData", JSON.stringify(issueData));
+
+      //   // Append files if any
+      //   attachments.forEach((attachment, index) => {
+      //     submitData.append(`attachments`, attachment.file);
+      //   });
+
+      // Make API call to create issue
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/users/issues`,
+        issueData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Issue created successfully:", response.data);
       setSubmitted(true);
+
       // Reset form after successful submission
-      setTimeout(() => {
-        setSubmitted(false);
-        setFormData({
-          title: "",
-          description: "",
-          category: "",
-          priority: "",
-          location: "",
-          coordinates: null,
-        });
-        setAttachments([]);
-      }, 3000);
-    }, 2000);
+
+      setSubmitted(false);
+      setFormData({
+        title: "",
+        description: "",
+        category: "",
+        priority: "",
+        location: "",
+        coordinates: null,
+      });
+      setAttachments([]);
+    } catch (error) {
+      console.error("Error creating issue:", error);
+      alert(
+        error.response?.data?.message ||
+          "Failed to submit issue. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitted) {

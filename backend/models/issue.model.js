@@ -52,7 +52,7 @@ const issueSchema = new mongoose.Schema(
     },
     priority: {
       type: String,
-      enum: ["Low", "Medium", "High"],
+      enum: ["Low", "Medium", "High", "low", "medium", "high"],
       default: "Medium",
     },
     isEscalated: { type: Boolean, default: false },

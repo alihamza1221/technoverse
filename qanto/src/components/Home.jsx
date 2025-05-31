@@ -208,6 +208,8 @@ export default function Home() {
         );
 
         setUserStats(response.data);
+        //set stats
+        dashboardData.stats = response.data?.data;
         console.log("User stats fetched:", response.data);
       } catch (error) {
         console.error("Error fetching user stats:", error);
