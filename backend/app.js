@@ -1,0 +1,23 @@
+const express = require("express");
+const cors = require("cors");
+const aiRoutes = require("./routes/ai.routes");
+const connectToDb = require("./utils/db");
+const app = express();
+
+var corsOptions = {
+  origin: "*",
+  optionsSuccessStatus: 200,
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"));
+
+connectToDb();
+//middleware
+app.use("/ai", aiRoutes);
+app.listen(3000, () => {
+  console.log("Server is running on port 3000");
+});
