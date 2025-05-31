@@ -3,7 +3,7 @@ const cors = require("cors");
 const aiRoutes = require("./routes/ai.routes");
 const connectToDb = require("./utils/db");
 const userRoutes = require("./routes/user.routes");
-
+const issueRoutes = require("./routes/issue.routes");
 const app = express();
 
 var corsOptions = {
@@ -20,5 +20,5 @@ app.use(express.static("public"));
 connectToDb();
 app.use("/ai", aiRoutes);
 app.use("/users", userRoutes);
-
+app.use("/issues", issueRoutes);
 module.exports = app;
