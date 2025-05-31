@@ -5,6 +5,7 @@ const connection = {
   dbStatus: 0,
 };
 function connectToDb() {
+  console.log("Connecting to DB...");
   if (connection.dbStatus == 0) {
     mongoose
       .connect(process.env.DB_CONNECT)
